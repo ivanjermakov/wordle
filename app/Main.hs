@@ -3,4 +3,6 @@ module Main where
 import App
 
 main :: IO ()
-main = appMain
+main = do
+  s <- appMain
+  return ()

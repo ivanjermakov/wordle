@@ -24,6 +24,7 @@ source-repository head
 library
   exposed-modules:
       App
+      Engine
   other-modules:
       Paths_wordle
   hs-source-dirs:
@@ -32,6 +33,8 @@ library
       base >=4.7 && <5
     , brick
     , containers
+    , random
+    , vty
   default-language: Haskell2010
 
 executable wordle
@@ -45,6 +48,8 @@ executable wordle
       base >=4.7 && <5
     , brick
     , containers
+    , random
+    , vty
     , wordle
   default-language: Haskell2010
 
@@ -60,5 +65,7 @@ test-suite wordle-test
       base >=4.7 && <5
     , brick
     , containers
+    , random
+    , vty
     , wordle
   default-language: Haskell2010
