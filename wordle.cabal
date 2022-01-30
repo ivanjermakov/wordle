@@ -1,0 +1,64 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+
+name:           wordle
+version:        0.1.0.0
+description:    TUI version of the Wordle word puzzle game written in Haskell
+homepage:       https://github.com/ivanjermakov/wordle#readme
+bug-reports:    https://github.com/ivanjermakov/wordle/issues
+author:         ivanjermakov
+maintainer:     ivanjermakov
+copyright:      2022 ivanjermakov
+license:        MIT
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/ivanjermakov/wordle
+
+library
+  exposed-modules:
+      App
+  other-modules:
+      Paths_wordle
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , brick
+    , containers
+  default-language: Haskell2010
+
+executable wordle
+  main-is: Main.hs
+  other-modules:
+      Paths_wordle
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , brick
+    , containers
+    , wordle
+  default-language: Haskell2010
+
+test-suite wordle-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_wordle
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , brick
+    , containers
+    , wordle
+  default-language: Haskell2010

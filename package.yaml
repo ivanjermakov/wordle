@@ -1,0 +1,42 @@
+name: wordle
+version: 0.1.0.0
+github: "ivanjermakov/wordle"
+license: MIT
+author: ivanjermakov
+maintainer: ivanjermakov
+copyright: "2022 ivanjermakov"
+
+extra-source-files:
+  - README.md
+
+description: TUI version of the Wordle word puzzle game written in Haskell
+
+dependencies:
+  - base >= 4.7 && < 5
+  - containers
+  - brick
+
+library:
+  source-dirs: src
+
+executables:
+  wordle:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - wordle
+
+tests:
+  wordle-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - wordle
