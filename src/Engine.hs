@@ -7,7 +7,7 @@ import System.Random
 data GuessType = NotInWord | WrongSpot | CorrectSpot | Default
   deriving (Show, Read, Eq, Ord)
 
-type Attempt = [(Char, GuessType)]
+type Guess = [(Char, GuessType)]
 
 data GameStatus = Win | Loss | Ongoing
   deriving (Show, Read, Eq, Ord)
@@ -27,7 +27,7 @@ pickWordFilter f ws = do
 isCorrectWord :: String -> [String] -> Bool
 isCorrectWord = elem
 
-guess :: String -> String -> Attempt
+guess :: String -> String -> Guess
 guess g w = zipWith (curry f) g w
   where
     f (gc, c) = (gc,) $ case (c == gc, gc `elem` w) of
