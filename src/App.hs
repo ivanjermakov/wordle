@@ -115,7 +115,7 @@ draw s =
           padLeft (T.Pad 2) . hBox . take 7 . drop 19 $ keys
         ]
     help =
-      vBox . map (\(c, a) -> hBox [str c, vLimit 1 $ fill ' ', str a]) $
+      withAttr secondaryTextAttr . vBox . map (\(c, a) -> hBox [str c, vLimit 1 $ fill ' ', str a]) $
         [ ("C-c", "quit"),
           ("C-r", "give up"),
           ("ent", "submit guess"),
@@ -168,7 +168,7 @@ attrMap :: A.AttrMap
 attrMap =
   A.attrMap
     V.defAttr
-    [ (notInWordAttr, fg V.brightRed),
+    [ (notInWordAttr, fg V.brightBlack),
       (wrongSpotAttr, fg V.yellow),
       (correctSpotAttr, fg V.green),
       (secondaryTextAttr, fg V.brightBlack)
