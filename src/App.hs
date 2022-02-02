@@ -35,8 +35,8 @@ data State = State
 initState :: IO State
 initState = do
   let wordSize = 5
-  dd <- getDataDir
-  ws <- readWords $ dd ++ "/dict/en-10k.txt"
+  dict <- getDataFileName "dict/en-10k.txt"
+  ws <- readWords dict
   word <- pickWordFilter ((== wordSize) . length) ws
   return $
     State
