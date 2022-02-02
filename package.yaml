@@ -1,5 +1,5 @@
 name: wordle
-version: 0.1.0.0
+version: 0.1.1.0
 github: "ivanjermakov/wordle"
 license: MIT
 author: ivanjermakov
@@ -8,10 +8,6 @@ copyright: "2022 ivanjermakov"
 
 extra-source-files:
   - README.md
-data-dir: resource
-data-files:
-  - dict/en-10k.txt
-  - dict/en-84k.txt
 
 description: TUI version of the Wordle word puzzle game written in Haskell
 

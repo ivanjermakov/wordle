@@ -33,17 +33,15 @@ data State = State
   }
   deriving (Show, Read, Eq, Ord)
 
-dict :: String
-dict = $(embedStringFile "resource/dict/en-10k.txt")
-
 initState :: IO State
 initState = do
   let wordSize = 5
-      ws = words dict
-  word <- pickWordFilter ((== wordSize) . length) ws
+      guessDict = $(embedStringFile "resource/dict/en-10k.txt")
+      targetDict = $(embedStringFile "resource/dict/en-84k.txt")
+  word <- pickWordFilter ((== wordSize) . length) . words $ guessDict
   return $
     State
-      { sWords = ws,
+      { sWords = words targetDict,
         sWord = word,
         sWordSize = wordSize,
         sGuesses = [],
