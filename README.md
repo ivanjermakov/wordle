@@ -2,22 +2,7 @@
 
 TUI version of the Wordle word puzzle game written in Haskell
 
-<html>
-<head>
-  <link rel="stylesheet" type="text/css" href="asciinema-player.css" />
-</head>
-<body>
-  <div id="player"></div>
-  <script src="asciinema-player.min.js"></script>
-  <script>
-    AsciinemaPlayer.create(
-      '466033.cast',
-      document.getElementById('player'),
-      { cols: 96, rows: 31 }
-    );
-  </script>
-</body>
-</html>
+![screenshot](https://user-images.githubusercontent.com/26609879/152106170-d6775967-b3f1-47ae-a8f4-3b006ed2246e.png)
 
 # Install
 
