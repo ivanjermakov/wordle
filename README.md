@@ -20,6 +20,12 @@ stack install
 
 Download the latest binary from the [Releases page](https://github.com/ivanjermakov/wordle/releases)
 
+```
+wget https://github.com/ivanjermakov/wordle/releases/latest/download/wordle
+chmod +x wordle
+sudo mv wordle /usr/bin/
+```
+
 # Credit
 
 - Original game by Josh Wardle: [Wordle](https://www.powerlanguage.co.uk/wordle/)
