@@ -8,6 +8,10 @@ copyright: "2022 ivanjermakov"
 
 extra-source-files:
   - README.md
+data-dir: resource
+data-files:
+  - dict/en-10k.txt
+  - dict/en-84k.txt
 
 description: TUI version of the Wordle word puzzle game written in Haskell
 

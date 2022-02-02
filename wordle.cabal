@@ -16,6 +16,10 @@ license:        MIT
 build-type:     Simple
 extra-source-files:
     README.md
+data-files:
+    dict/en-10k.txt
+    dict/en-84k.txt
+data-dir:       resource
 
 source-repository head
   type: git
