@@ -18,7 +18,7 @@ stack install
 
 ## From binary
 
-TBD
+Download the latest binary from the [Releases page](https://github.com/ivanjermakov/wordle/releases)
 
 # Credit
 
