@@ -21,6 +21,7 @@ dependencies:
   - random
   - brick
   - vty
+  - file-embed
 
 library:
   source-dirs: src

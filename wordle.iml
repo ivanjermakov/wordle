@@ -63,5 +63,6 @@
     <orderEntry type="library" name="parser-combinators-1.2.1" level="project" />
     <orderEntry type="library" name="scientific-0.3.7.0" level="project" />
     <orderEntry type="library" name="integer-logarithms-1.0.3.1" level="project" />
+    <orderEntry type="library" name="file-embed-0.0.15.0" level="project" />
   </component>
 </module>

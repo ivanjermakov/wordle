@@ -37,6 +37,7 @@ library
       base >=4.7 && <5
     , brick
     , containers
+    , file-embed
     , random
     , vty
   default-language: Haskell2010
@@ -53,6 +54,7 @@ executable wordle
       base >=4.7 && <5
     , brick
     , containers
+    , file-embed
     , random
     , vty
     , wordle
@@ -70,6 +72,7 @@ test-suite wordle-test
       base >=4.7 && <5
     , brick
     , containers
+    , file-embed
     , random
     , vty
     , wordle

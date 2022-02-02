@@ -1,5 +1,6 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 
 module App where
@@ -12,12 +13,12 @@ import Brick.Widgets.Border (border)
 import Brick.Widgets.Center (center, hCenter)
 import Brick.Widgets.Core
 import Control.Monad.IO.Class (liftIO)
+import Data.FileEmbed (embedStringFile)
 import Data.List (nub)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import Engine
 import Graphics.Vty as V hiding (Default)
-import Paths_wordle
 import Text.Printf (printf)
 
 data State = State
@@ -32,11 +33,13 @@ data State = State
   }
   deriving (Show, Read, Eq, Ord)
 
+dict :: String
+dict = $(embedStringFile "resource/dict/en-10k.txt")
+
 initState :: IO State
 initState = do
   let wordSize = 5
-  dict <- getDataFileName "dict/en-10k.txt"
-  ws <- readWords dict
+      ws = words dict
   word <- pickWordFilter ((== wordSize) . length) ws
   return $
     State
