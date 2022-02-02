@@ -24,6 +24,7 @@ source-repository head
 library
   exposed-modules:
       App
+      Cmd
       Engine
   other-modules:
       Paths_wordle
@@ -33,6 +34,7 @@ library
       base >=4.7 && <5
     , brick
     , containers
+    , docopt
     , file-embed
     , random
     , vty
@@ -50,6 +52,7 @@ executable wordle
       base >=4.7 && <5
     , brick
     , containers
+    , docopt
     , file-embed
     , random
     , vty
@@ -68,6 +71,7 @@ test-suite wordle-test
       base >=4.7 && <5
     , brick
     , containers
+    , docopt
     , file-embed
     , random
     , vty

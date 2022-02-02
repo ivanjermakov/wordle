@@ -18,6 +18,7 @@ dependencies:
   - brick
   - vty
   - file-embed
+  - docopt
 
 library:
   source-dirs: src

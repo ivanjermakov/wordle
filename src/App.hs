@@ -1,6 +1,5 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 
 module App where
@@ -12,8 +11,8 @@ import Brick.Util (fg)
 import Brick.Widgets.Border (border)
 import Brick.Widgets.Center (center, hCenter)
 import Brick.Widgets.Core
+import Cmd
 import Control.Monad.IO.Class (liftIO)
-import Data.FileEmbed (embedStringFile)
 import Data.List (nub)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
@@ -35,17 +34,15 @@ data State = State
 
 initState :: IO State
 initState = do
-  let wordSize = 5
-      guessDict = $(embedStringFile "resource/dict/en-10k.txt")
-      targetDict = $(embedStringFile "resource/dict/en-84k.txt")
-  word <- pickWordFilter ((== wordSize) . length) . words $ guessDict
+  ss <- argSettings
+  word <- pickWordFilter ((== argWordSize ss) . length) . argTargetDict $ ss
   return $
     State
-      { sWords = words targetDict,
+      { sWords = argGuessDict ss,
         sWord = word,
-        sWordSize = wordSize,
+        sWordSize = argWordSize ss,
         sGuesses = [],
-        sMaxGuesses = 6,
+        sMaxGuesses = argMaxGuesses ss,
         sInput = "",
         sStatus = "",
         sGameStatus = Ongoing
@@ -65,11 +62,12 @@ app =
       BM.appAttrMap = const attrMap
     }
 
+-- TODO: center guesses and input for shorter words
 draw :: State -> [T.Widget n]
 draw s =
   [ center . vBox $
       [ hBox
-          [ border . padLeftRight 2 . padTopBottom 1 . vBox $
+          [ border . padLeft (T.Pad 2) . padRight (T.Pad 1) . padTopBottom 1 . vBox $
               [ hLimit guessWidth . hCenter . str $ "Guesses",
                 drawGuesses (sGuesses s),
                 drawGuesses futureGuesses
@@ -87,8 +85,8 @@ draw s =
       ]
   ]
   where
-    guessWidth = 5 * sWordSize s
-    guessHeight = 3 * sWordSize s + 4
+    guessWidth = maximum [20, 5 * sWordSize s + 1]
+    guessHeight = maximum [13, 3 * sMaxGuesses s + 1]
     status = strWrap . sStatus $ s
     drawGuesses ats = vBox . map drawGuess $ ats
     drawGuess = hBox . map drawChar
@@ -101,7 +99,8 @@ draw s =
       Default -> id
     futureGuesses = map (const futureGuess) [0 .. sMaxGuesses s - length (sGuesses s) - 1]
     futureGuess = map (const (' ', Default)) [0 .. sWordSize s - 1]
-    drawInput = drawGuess . map (,Default) . (\cs -> cs ++ replicate (sWordSize s - length cs) ' ') . sInput $ s
+    drawInput = padLeft (T.Pad 1) . drawGuess . map (,Default) . (\cs -> cs ++ replicate (sWordSize s - length cs) ' ') . sInput $ s
+    -- TODO: prioritize C > W > N
     guessedMap = M.fromList . nub . concat . sGuesses $ s
     keys =
       map
@@ -149,7 +148,7 @@ handleEvent s e = case sGameStatus s of
                 case (g == w, length (sGuesses s'') == sMaxGuesses s'') of
                   (True, _) -> s'' {sGameStatus = Win, sStatus = "You guessed the word!"}
                   (_, True) -> s'' {sGameStatus = Loss, sStatus = printf "Wrong guess, the word was \"%s\"" w}
-                  (_, False) -> s''
+                  (_, False) -> s'' {sStatus = ""}
               where
                 s'' = s' {sGuesses = sGuesses s ++ [attempt], sInput = ""}
         BM.continue ns
