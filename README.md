@@ -8,13 +8,13 @@ TUI version of the Wordle word puzzle game written in Haskell
 
 ## From source
 
-1. Install [Stack](https://docs.haskellstack.org/en/stable/install_and_upgrade/)
-2.
- ```
- git clone https://github.com/ivanjermakov/wordle.git
- cd wordle
- stack install
- ```
+Install [Stack](https://docs.haskellstack.org/en/stable/install_and_upgrade/)
+
+```
+git clone https://github.com/ivanjermakov/wordle.git
+cd wordle
+stack install
+```
 
 ## From binary
 
