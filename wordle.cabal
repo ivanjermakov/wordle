@@ -13,6 +13,7 @@ author:         ivanjermakov
 maintainer:     ivanjermakov
 copyright:      2022 ivanjermakov
 license:        MIT
+license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md

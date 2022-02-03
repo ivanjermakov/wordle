@@ -100,8 +100,7 @@ draw s =
     futureGuesses = map (const futureGuess) [0 .. sMaxGuesses s - length (sGuesses s) - 1]
     futureGuess = map (const (' ', Default)) [0 .. sWordSize s - 1]
     drawInput = padLeft (T.Pad 1) . drawGuess . map (,Default) . (\cs -> cs ++ replicate (sWordSize s - length cs) ' ') . sInput $ s
-    -- TODO: prioritize C > W > N
-    guessedMap = M.fromList . nub . concat . sGuesses $ s
+    guessedMap = M.fromListWith max . nub . concat . sGuesses $ s
     keys =
       map
         ( padLeft (T.Pad 1)

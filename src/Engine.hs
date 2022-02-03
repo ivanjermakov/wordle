@@ -4,7 +4,7 @@ module Engine where
 
 import System.Random
 
-data GuessType = NotInWord | WrongSpot | CorrectSpot | Default
+data GuessType = Default | NotInWord | WrongSpot | CorrectSpot
   deriving (Show, Read, Eq, Ord)
 
 type Guess = [(Char, GuessType)]
