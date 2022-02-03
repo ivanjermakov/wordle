@@ -62,32 +62,32 @@ app =
       BM.appAttrMap = const attrMap
     }
 
--- TODO: center guesses and input for shorter words
 draw :: State -> [T.Widget n]
 draw s =
-  [ center . vBox $
+  [ center . vLimit guessHeight . vBox $
       [ hBox
-          [ border . padLeft (T.Pad 2) . padRight (T.Pad 1) . padTopBottom 1 . vBox $
-              [ hLimit guessWidth . hCenter . str $ "Guesses",
+          [ border . padLeft (T.Pad 2) . padRight (T.Pad 1) . padBottom T.Max . hLimit guessWidth . hCenter . vBox . map hCenter $
+              [ str "Guesses",
                 drawGuesses (sGuesses s),
                 drawGuesses futureGuesses
               ],
             str "  ",
-            border . padRight (T.Pad 1) . padAll 1 . vLimit guessHeight . hLimit guessWidth . vBox $
-              [ hCenter . str $ "Input",
+            border . padLeft (T.Pad 1) . padRight (T.Pad 2) . padBottom T.Max . hLimit (max 20 guessWidth) . vBox . map hCenter $
+              [ str "Input",
                 drawInput,
-                padAll 1 . hCenter $ drawKeyboard,
+                drawKeyboard,
+                vLimit 1 . fill $ ' ',
                 status,
                 fill ' ',
-                help
+                padLeft (T.Pad 1) help
               ]
           ]
       ]
   ]
   where
-    guessWidth = maximum [20, 5 * sWordSize s + 1]
-    guessHeight = maximum [13, 3 * sMaxGuesses s + 1]
-    status = strWrap . sStatus $ s
+    guessWidth = 5 * sWordSize s + 1
+    guessHeight = maximum [17, 3 * sMaxGuesses s + 3]
+    status = withAttr wrongSpotAttr . padLeft (T.Pad 1) . strWrap . sStatus $ s
     drawGuesses ats = vBox . map drawGuess $ ats
     drawGuess = hBox . map drawChar
     drawChar :: (Char, GuessType) -> T.Widget n
