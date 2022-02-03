@@ -10,8 +10,8 @@ extra-source-files:
   - README.md
 data-dir: resource
 data-files:
-  - dict/en-10k.txt
-  - dict/en-84k.txt
+  - dict/en-1k-5l.txt
+  - dict/en-22k-5l.txt
 
 description: TUI version of the Wordle word puzzle game written in Haskell
 
