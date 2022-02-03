@@ -17,8 +17,8 @@ build-type:     Simple
 extra-source-files:
     README.md
 data-files:
-    dict/en-10k.txt
-    dict/en-84k.txt
+    dict/en-1k-5l.txt
+    dict/en-22k-5l.txt
 data-dir:       resource
 
 source-repository head
