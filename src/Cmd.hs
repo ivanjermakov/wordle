@@ -27,6 +27,8 @@ maybeReadOptionDict def o args =
     $ o
 
 -- TODO: validation
+-- TODO: unicode/ascii result
+-- TODO: quiet option to suppress result
 argSettings :: IO Settings
 argSettings = do
   args <- parseArgsOrExit patterns =<< getArgs

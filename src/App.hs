@@ -28,7 +28,8 @@ data State = State
     sMaxGuesses :: Int,
     sInput :: String,
     sStatus :: String,
-    sGameStatus :: GameStatus
+    sGameStatus :: GameStatus,
+    sResults :: [String]
   }
   deriving (Show, Read, Eq, Ord)
 
@@ -45,7 +46,8 @@ initState = do
         sMaxGuesses = argMaxGuesses ss,
         sInput = "",
         sStatus = "",
-        sGameStatus = Ongoing
+        sGameStatus = Ongoing,
+        sResults = []
       }
 
 appMain :: IO State
@@ -145,8 +147,17 @@ handleEvent s e = case sGameStatus s of
               | not $ isCorrectWord g ws = s' {sStatus = printf "\"%s\" is not a valid word" g}
               | otherwise =
                 case (g == w, length (sGuesses s'') == sMaxGuesses s'') of
-                  (True, _) -> s'' {sGameStatus = Win, sStatus = "You guessed the word!"}
-                  (_, True) -> s'' {sGameStatus = Loss, sStatus = printf "Wrong guess, the word was \"%s\"" w}
+                  (True, _) ->
+                    s''
+                      { sGameStatus = Win,
+                        sStatus = "You guessed the word!",
+                        sResults = sResults s'' ++ [showResultGrid False . sGuesses $ s'']
+                      }
+                  (_, True) ->
+                    s''
+                      { sGameStatus = Loss,
+                        sStatus = printf "Wrong guess, the word was \"%s\"" w
+                      }
                   (_, False) -> s'' {sStatus = ""}
               where
                 s'' = s' {sGuesses = sGuesses s ++ [attempt], sInput = ""}

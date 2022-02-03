@@ -2,6 +2,7 @@
 
 module Engine where
 
+import Data.List (intercalate)
 import System.Random
 
 data GuessType = Default | NotInWord | WrongSpot | CorrectSpot
@@ -34,3 +35,22 @@ guess g w = zipWith (curry f) g w
       (True, _) -> CorrectSpot
       (_, True) -> WrongSpot
       (_, False) -> NotInWord
+
+showResultGrid :: Bool -> [Guess] -> String
+showResultGrid isUnicode = intercalate "\n" . map (concatMap (f . snd))
+  where
+    f = if isUnicode then showGuessTypeUnicode else showGuessTypeAscii
+
+showGuessTypeUnicode :: GuessType -> String
+showGuessTypeUnicode s = case s of
+  Default -> " "
+  NotInWord -> "⬜"
+  WrongSpot -> "🟨"
+  CorrectSpot -> "🟩"
+
+showGuessTypeAscii :: GuessType -> String
+showGuessTypeAscii s = case s of
+  Default -> " "
+  NotInWord -> "."
+  WrongSpot -> "w"
+  CorrectSpot -> "c"
