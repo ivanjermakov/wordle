@@ -34,7 +34,7 @@ data State = State
   deriving (Show, Read, Eq, Ord)
 
 dict :: String
-dict = $(embedStringFile "resource/dict/en-10k.txt")
+dict = $(embedStringFile "resource/dict/en-1k-5l.txt")
 
 initState :: IO State
 initState = do
