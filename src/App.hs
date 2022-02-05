@@ -14,7 +14,6 @@ import Brick.Widgets.Center (center, hCenter)
 import Brick.Widgets.Core
 import Control.Monad.IO.Class (liftIO)
 import Data.FileEmbed (embedStringFile)
-import Data.List (nub)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import Engine
@@ -104,7 +103,7 @@ draw s =
     futureGuesses = map (const futureGuess) [0 .. sMaxGuesses s - length (sGuesses s) - 1]
     futureGuess = map (const (' ', Default)) [0 .. sWordSize s - 1]
     drawInput = drawGuess . map (,Default) . (\cs -> cs ++ replicate (sWordSize s - length cs) ' ') . sInput $ s
-    guessedMap = M.fromList . nub . concat . sGuesses $ s
+    guessedMap = M.fromListWith max . concat . sGuesses $ s
     keys =
       map
         ( padLeft (T.Pad 1)
