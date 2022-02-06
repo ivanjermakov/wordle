@@ -1,5 +1,3 @@
-{-# LANGUAGE TupleSections #-}
-
 module Engine where
 
 import Data.List (intercalate)
@@ -29,12 +27,18 @@ isCorrectWord :: String -> [String] -> Bool
 isCorrectWord = elem
 
 guess :: String -> String -> Guess
-guess g w = zipWith (curry f) g w
+guess gWord tWord = zipWith3 f gWord tWord [0 ..]
   where
-    f (gc, c) = (gc,) $ case (c == gc, gc `elem` w) of
-      (True, _) -> CorrectSpot
-      (_, True) -> WrongSpot
-      (_, False) -> NotInWord
+    f :: Char -> Char -> Int -> (Char, GuessType)
+    f g t i
+      | g == t = (g, CorrectSpot)
+      | g `notElem` tWord = (g, NotInWord)
+      | countTotal g > countBefore g = (g, WrongSpot)
+      | otherwise = (g, NotInWord)
+      where
+        countInTarget c = length . filter (== c)
+        countTotal = flip countInTarget tWord
+        countBefore c = countInTarget c . take (i - 1) $ tWord
 
 showResultGrid :: Bool -> [Guess] -> String
 showResultGrid isUnicode = intercalate "\n" . map (concatMap (f . snd))
