@@ -64,6 +64,7 @@ test-suite wordle-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      EngineSpec
       Paths_wordle
   hs-source-dirs:
       test
@@ -74,6 +75,7 @@ test-suite wordle-test
     , containers
     , docopt
     , file-embed
+    , hspec
     , random
     , vty
     , wordle
