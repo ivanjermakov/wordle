@@ -5,14 +5,18 @@ module Cmd where
 
 import Control.Monad (when)
 import Data.FileEmbed (embedStringFile)
+import Engine
 import System.Console.Docopt
 import System.Environment (getArgs)
 
 data Settings = Settings
   { argTargetDict :: [String],
     argGuessDict :: [String],
+    argDailyDict :: [String],
     argMaxGuesses :: Int,
-    argWordSize :: Int
+    argWordSize :: Int,
+    argGameMode :: GameMode,
+    argUnicode :: Bool
   }
   deriving (Show, Read, Eq, Ord)
 
@@ -26,8 +30,6 @@ maybeReadOptionDict def o args =
     . shortOption
     $ o
 
--- TODO: validation
--- TODO: unicode/ascii result
 -- TODO: quiet option to suppress result
 argSettings :: IO Settings
 argSettings = do
@@ -38,17 +40,23 @@ argSettings = do
 
   let targetDict = $(embedStringFile "resource/dict/en-10k.txt")
       guessDict = $(embedStringFile "resource/dict/en-84k.txt")
+      dailyDict = words $(embedStringFile "resource/dict/official.txt")
   td <- maybeReadOptionDict (words targetDict) 't' args
   gd <- maybeReadOptionDict (words guessDict) 'g' args
 
   let attempts = maybe 6 read . getArg args . shortOption $ 'a'
       wordLength = maybe 5 read . getArg args . shortOption $ 'l'
+      gameMode = (\b -> if b then Daily else Infinite) . isPresent args . shortOption $ 'd'
+      unicode = not . isPresent args . shortOption $ 's'
       settings =
         Settings
           { argTargetDict = td,
             argGuessDict = gd,
+            argDailyDict = dailyDict,
             argMaxGuesses = attempts,
-            argWordSize = wordLength
+            argWordSize = wordLength,
+            argGameMode = gameMode,
+            argUnicode = unicode
           }
 
   return settings

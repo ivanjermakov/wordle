@@ -13,6 +13,7 @@ description: TUI version of the Wordle word puzzle game written in Haskell
 
 dependencies:
   - base >= 4.7 && < 5
+  - time
   - containers
   - random
   - brick

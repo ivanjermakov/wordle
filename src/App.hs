@@ -13,7 +13,7 @@ import Brick.Widgets.Center (center, hCenter)
 import Brick.Widgets.Core
 import Cmd
 import Control.Monad.IO.Class (liftIO)
-import Data.List (nub)
+import Data.List (intercalate, nub)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import Engine
@@ -29,14 +29,24 @@ data State = State
     sInput :: String,
     sStatus :: String,
     sGameStatus :: GameStatus,
-    sResults :: [String]
+    sGameMode :: GameMode,
+    sResults :: [String],
+    sUnicode :: Bool,
+    sWordIx :: String
   }
   deriving (Show, Read, Eq, Ord)
 
+-- TODO: notify when daily was already played
 initState :: IO State
 initState = do
   ss <- argSettings
-  word <- pickWordFilter ((== argWordSize ss) . length) . argTargetDict $ ss
+  ix <- todayIndex
+  let gm = argGameMode ss
+      showIx = if gm == Daily then show ix else "∞"
+  word <-
+    if gm == Infinite
+      then pickWordFilter ((== argWordSize ss) . length) . argTargetDict $ ss
+      else pickWordDaily . argDailyDict $ ss
   return $
     State
       { sWords = argGuessDict ss,
@@ -45,9 +55,12 @@ initState = do
         sGuesses = [],
         sMaxGuesses = argMaxGuesses ss,
         sInput = "",
-        sStatus = "",
+        sStatus = "Wordle " ++ showIx,
         sGameStatus = Ongoing,
-        sResults = []
+        sGameMode = gm,
+        sResults = [],
+        sUnicode = argUnicode ss,
+        sWordIx = showIx
       }
 
 appMain :: IO State
@@ -141,27 +154,32 @@ handleEvent s e = case sGameStatus s of
       inputH k = BM.continue $ s {sInput = take (sWordSize s) $ sInput s ++ [k]}
       bspcH = BM.continue $ s {sInput = if null $ sInput s then "" else init $ sInput s}
       guessH = do
-        let s' = s {sInput = ""}
-            ns
-              | length g /= length w = s' {sStatus = printf "Word size must be %d" $ length w}
-              | not $ isCorrectWord g ws = s' {sStatus = printf "\"%s\" is not a valid word" g}
+        let ns
+              | length g /= length w = s {sStatus = printf "Word size must be %d" $ length w}
+              | not $ isCorrectWord g ws = s {sStatus = printf "\"%s\" is not a valid word" g}
               | otherwise =
-                case (g == w, length (sGuesses s'') == sMaxGuesses s'') of
+                case (g == w, length (sGuesses s') == sMaxGuesses s') of
                   (True, _) ->
-                    s''
+                    s'
                       { sGameStatus = Win,
                         sStatus = "You guessed the word!",
-                        sResults = sResults s'' ++ [showResultGrid False . sGuesses $ s'']
+                        sResults = sResults s' ++ [showResult s']
                       }
                   (_, True) ->
-                    s''
+                    s'
                       { sGameStatus = Loss,
                         sStatus = printf "Wrong guess, the word was \"%s\"" w
                       }
-                  (_, False) -> s'' {sStatus = ""}
+                  (_, False) -> s' {sStatus = ""}
               where
-                s'' = s' {sGuesses = sGuesses s ++ [attempt], sInput = ""}
-        BM.continue ns
+                s' = s {sGuesses = sGuesses s ++ [attempt], sInput = ""}
+                showResult _s = intercalate "\n" (t : "" : g)
+                  where
+                    t = unwords ["Wordle", n, att]
+                    n = sWordIx _s
+                    att = concat [show . length . sGuesses $ _s, "/", show . sMaxGuesses $ _s]
+                    g = sResults _s ++ [showResultGrid (sUnicode _s) . sGuesses $ _s]
+        BM.continue ns {sInput = ""}
   _ -> case e of
     T.VtyEvent ve -> case ve of
       V.EvKey (V.KChar 'c') [V.MCtrl] -> BM.halt s

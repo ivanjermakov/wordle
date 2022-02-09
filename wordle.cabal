@@ -38,6 +38,7 @@ library
     , docopt
     , file-embed
     , random
+    , time
     , vty
   default-language: Haskell2010
 
@@ -56,6 +57,7 @@ executable wordle
     , docopt
     , file-embed
     , random
+    , time
     , vty
     , wordle
   default-language: Haskell2010
@@ -77,6 +79,7 @@ test-suite wordle-test
     , file-embed
     , hspec
     , random
+    , time
     , vty
     , wordle
   default-language: Haskell2010

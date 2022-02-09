@@ -1,6 +1,7 @@
 module Engine where
 
 import Data.List (intercalate)
+import Data.Time
 import System.Random
 
 data GuessType = Default | NotInWord | WrongSpot | CorrectSpot
@@ -9,6 +10,9 @@ data GuessType = Default | NotInWord | WrongSpot | CorrectSpot
 type Guess = [(Char, GuessType)]
 
 data GameStatus = Win | Loss | Ongoing
+  deriving (Show, Read, Eq, Ord)
+
+data GameMode = Daily | Infinite
   deriving (Show, Read, Eq, Ord)
 
 readWords :: FilePath -> IO [String]
@@ -22,6 +26,19 @@ pickWordFilter f ws = do
   let fws = filter f ws
   n <- randomRIO (0, length fws - 1)
   return $ fws !! n
+
+pickWordDaily :: [String] -> IO String
+pickWordDaily d = do
+  ix <- todayIndex
+  return $ d !! (ix `mod` length d)
+
+todayIndex :: IO Int
+todayIndex = do
+  currentDay <- utctDay <$> getCurrentTime
+  -- January 1, 2022 Game Epoch
+  let startDay = parseTimeOrError True defaultTimeLocale "%F" "2022-01-01"
+  let sinceDays = diffDays currentDay startDay
+  return . fromIntegral . (+ 195) $ sinceDays
 
 isCorrectWord :: String -> [String] -> Bool
 isCorrectWord = elem
