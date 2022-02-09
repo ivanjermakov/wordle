@@ -50,12 +50,14 @@ guess gWord tWord = zipWith3 f gWord tWord [0 ..]
     f g t i
       | g == t = (g, CorrectSpot)
       | g `notElem` tWord = (g, NotInWord)
+      | countInTargetCorrect g > countBefore g = (g, NotInWord)
       | countTotal g > countBefore g = (g, WrongSpot)
       | otherwise = (g, NotInWord)
       where
         countInTarget c = length . filter (== c)
         countTotal = flip countInTarget tWord
         countBefore c = countInTarget c . take (i - 1) $ tWord
+        countInTargetCorrect c = length . filter (\(a, b) -> a == c && b == c) $ zip gWord tWord
 
 showResultGrid :: Bool -> [Guess] -> String
 showResultGrid isUnicode = intercalate "\n" . map (concatMap (f . snd))

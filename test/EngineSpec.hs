@@ -10,6 +10,12 @@ spec = do
           shouldBe
             (map snd $ guess g t)
             gts
+    it "abc -> abc" $ do
+      test "abc" "abc" [CorrectSpot, CorrectSpot, CorrectSpot]
+    it "aac -> abc" $ do
+      test "aac" "abc" [CorrectSpot, NotInWord, CorrectSpot]
+    it "abcb -> abcc" $ do
+      test "abcd" "abcc" [CorrectSpot, CorrectSpot, CorrectSpot, NotInWord]
     it "correct chars" $ do
       map fst (guess "allow" "skill") `shouldBe` "allow"
     it "fever -> skill" $ do
@@ -22,3 +28,7 @@ spec = do
       test "issue" "skill" [WrongSpot, WrongSpot, NotInWord, NotInWord, NotInWord]
     it "skill -> skill" $ do
       test "skill" "skill" [CorrectSpot, CorrectSpot, CorrectSpot, CorrectSpot, CorrectSpot]
+    it "reels -> myers" $ do
+      test "reels" "myers" [WrongSpot, NotInWord, CorrectSpot, NotInWord, CorrectSpot]
+    it "seers -> myers" $ do
+      test "reels" "myers" [WrongSpot, NotInWord, CorrectSpot, NotInWord, CorrectSpot]
