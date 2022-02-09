@@ -1,6 +1,5 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 
 module App where
@@ -12,9 +11,9 @@ import Brick.Util (fg)
 import Brick.Widgets.Border (border)
 import Brick.Widgets.Center (center, hCenter)
 import Brick.Widgets.Core
+import Cmd
 import Control.Monad.IO.Class (liftIO)
-import Data.FileEmbed (embedStringFile)
-import Data.List (nub)
+import Data.List (intercalate, nub)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import Engine
@@ -29,28 +28,39 @@ data State = State
     sMaxGuesses :: Int,
     sInput :: String,
     sStatus :: String,
-    sGameStatus :: GameStatus
+    sGameStatus :: GameStatus,
+    sGameMode :: GameMode,
+    sResults :: [String],
+    sUnicode :: Bool,
+    sWordIx :: String
   }
   deriving (Show, Read, Eq, Ord)
 
-dict :: String
-dict = $(embedStringFile "resource/dict/en-10k.txt")
-
+-- TODO: notify when daily was already played
 initState :: IO State
 initState = do
-  let wordSize = 5
-      ws = words dict
-  word <- pickWordFilter ((== wordSize) . length) ws
+  ss <- argSettings
+  ix <- todayIndex
+  let gm = argGameMode ss
+      showIx = if gm == Daily then show ix else "∞"
+  word <-
+    if gm == Infinite
+      then pickWordFilter ((== argWordSize ss) . length) . argTargetDict $ ss
+      else pickWordDaily . argDailyDict $ ss
   return $
     State
-      { sWords = ws,
+      { sWords = argGuessDict ss,
         sWord = word,
-        sWordSize = wordSize,
+        sWordSize = argWordSize ss,
         sGuesses = [],
-        sMaxGuesses = 6,
+        sMaxGuesses = argMaxGuesses ss,
         sInput = "",
-        sStatus = "",
-        sGameStatus = Ongoing
+        sStatus = "Wordle " ++ showIx,
+        sGameStatus = Ongoing,
+        sGameMode = gm,
+        sResults = [],
+        sUnicode = argUnicode ss,
+        sWordIx = showIx
       }
 
 appMain :: IO State
@@ -69,29 +79,30 @@ app =
 
 draw :: State -> [T.Widget n]
 draw s =
-  [ center . vBox $
+  [ center . vLimit guessHeight . vBox $
       [ hBox
-          [ border . padLeftRight 2 . padTopBottom 1 . vBox $
-              [ hLimit guessWidth . hCenter . str $ "Guesses",
+          [ border . padLeft (T.Pad 2) . padRight (T.Pad 1) . padBottom T.Max . hLimit guessWidth . hCenter . vBox . map hCenter $
+              [ str "Guesses",
                 drawGuesses (sGuesses s),
                 drawGuesses futureGuesses
               ],
             str "  ",
-            border . padRight (T.Pad 1) . padAll 1 . vLimit guessHeight . hLimit guessWidth . vBox $
-              [ hCenter . str $ "Input",
+            border . padLeft (T.Pad 1) . padRight (T.Pad 2) . padBottom T.Max . hLimit (max 20 guessWidth) . vBox . map hCenter $
+              [ str "Input",
                 drawInput,
-                padAll 1 . hCenter $ drawKeyboard,
+                drawKeyboard,
+                vLimit 1 . fill $ ' ',
                 status,
                 fill ' ',
-                help
+                padLeft (T.Pad 1) help
               ]
           ]
       ]
   ]
   where
-    guessWidth = 5 * sWordSize s
-    guessHeight = 3 * sWordSize s + 4
-    status = strWrap . sStatus $ s
+    guessWidth = 5 * sWordSize s + 1
+    guessHeight = maximum [17, 3 * sMaxGuesses s + 3]
+    status = withAttr wrongSpotAttr . padLeft (T.Pad 1) . strWrap . sStatus $ s
     drawGuesses ats = vBox . map drawGuess $ ats
     drawGuess = hBox . map drawChar
     drawChar :: (Char, GuessType) -> T.Widget n
@@ -103,8 +114,8 @@ draw s =
       Default -> id
     futureGuesses = map (const futureGuess) [0 .. sMaxGuesses s - length (sGuesses s) - 1]
     futureGuess = map (const (' ', Default)) [0 .. sWordSize s - 1]
-    drawInput = drawGuess . map (,Default) . (\cs -> cs ++ replicate (sWordSize s - length cs) ' ') . sInput $ s
-    guessedMap = M.fromList . nub . concat . sGuesses $ s
+    drawInput = padLeft (T.Pad 1) . drawGuess . map (,Default) . (\cs -> cs ++ replicate (sWordSize s - length cs) ' ') . sInput $ s
+    guessedMap = M.fromListWith max . nub . concat . sGuesses $ s
     keys =
       map
         ( padLeft (T.Pad 1)
@@ -143,18 +154,32 @@ handleEvent s e = case sGameStatus s of
       inputH k = BM.continue $ s {sInput = take (sWordSize s) $ sInput s ++ [k]}
       bspcH = BM.continue $ s {sInput = if null $ sInput s then "" else init $ sInput s}
       guessH = do
-        let s' = s {sInput = ""}
-            ns
-              | length g /= length w = s' {sStatus = printf "Word size must be %d" $ length w}
-              | not $ isCorrectWord g ws = s' {sStatus = printf "\"%s\" is not a valid word" g}
+        let ns
+              | length g /= length w = s {sStatus = printf "Word size must be %d" $ length w}
+              | not $ isCorrectWord g ws = s {sStatus = printf "\"%s\" is not a valid word" g}
               | otherwise =
-                case (g == w, length (sGuesses s'') == sMaxGuesses s'') of
-                  (True, _) -> s'' {sGameStatus = Win, sStatus = "You guessed the word!"}
-                  (_, True) -> s'' {sGameStatus = Loss, sStatus = printf "Wrong guess, the word was \"%s\"" w}
-                  (_, False) -> s''
+                case (g == w, length (sGuesses s') == sMaxGuesses s') of
+                  (True, _) ->
+                    s'
+                      { sGameStatus = Win,
+                        sStatus = "You guessed the word!",
+                        sResults = sResults s' ++ [showResult s']
+                      }
+                  (_, True) ->
+                    s'
+                      { sGameStatus = Loss,
+                        sStatus = printf "Wrong guess, the word was \"%s\"" w
+                      }
+                  (_, False) -> s' {sStatus = ""}
               where
-                s'' = s' {sGuesses = sGuesses s ++ [attempt], sInput = ""}
-        BM.continue ns
+                s' = s {sGuesses = sGuesses s ++ [attempt], sInput = ""}
+                showResult _s = intercalate "\n" (t : "" : g)
+                  where
+                    t = unwords ["Wordle", n, att]
+                    n = sWordIx _s
+                    att = concat [show . length . sGuesses $ _s, "/", show . sMaxGuesses $ _s]
+                    g = sResults _s ++ [showResultGrid (sUnicode _s) . sGuesses $ _s]
+        BM.continue ns {sInput = ""}
   _ -> case e of
     T.VtyEvent ve -> case ve of
       V.EvKey (V.KChar 'c') [V.MCtrl] -> BM.halt s
