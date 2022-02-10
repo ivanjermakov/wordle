@@ -8,32 +8,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: 'Set up HLint'
+      - name: hlint setup
         uses: haskell/actions/hlint-setup@v1
         with:
           version: '3.1.6'
 
-      - name: 'Run HLint'
+      - name: hlint run
         uses: haskell/actions/hlint-run@v1
         with:
           path: src/
           fail-on: warning
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        ghc: [ '8.6.5', '8.8.3', '9.0.2' ]
-        cabal: [ '2.4.1.0', '3.0.0.0' , '3.4.1.0' ]
-        os: [ ubuntu-latest, macOS-latest, windows-latest ]
-        exclude:
-          - ghc: 8.8.3
-            cabal: 2.4.1.0
-    name: stack test GHC ${{ matrix.ghc }}
+  stack:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: stack test
-        uses: actions/setup-haskell@v1.1
+      - uses: haskell/actions/setup@v1
         with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
+          ghc-version: '8.8.3'
+          enable-stack: true
+          stack-version: 'latest'
       - run: stack test
