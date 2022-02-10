@@ -1,0 +1,29 @@
+on:
+  - push
+  - pull_request
+name: test
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        ghc: [ '8.6.5', '8.8.3', '9.0.2' ]
+        cabal: [ '2.4.1.0', '3.0.0.0' , '3.4.1.0' ]
+        os: [ ubuntu-latest, macOS-latest, windows-latest ]
+        exclude:
+          - ghc: 8.8.3
+            cabal: 2.4.1.0
+    name: Haskell GHC ${{ matrix.ghc }} sample
+    steps:
+      - uses: actions/checkout@v2
+      - name: stack test
+        uses: actions/setup-haskell@v1.1
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
+      - run: stack test
+      - name: hlint
+      uses: haskell/actions/hlint-run@v1
+      with:
+        path: src/
+        fail-on: warning
