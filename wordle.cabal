@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           wordle
-version:        0.1.1.0
+version:        0.2.1.0
 description:    TUI version of the Wordle word puzzle game written in Haskell
 homepage:       https://github.com/ivanjermakov/wordle#readme
 bug-reports:    https://github.com/ivanjermakov/wordle/issues

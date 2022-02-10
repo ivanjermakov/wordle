@@ -1,0 +1,30 @@
+on:
+  - push
+  - pull_request
+name: test
+jobs:
+  hlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: hlint setup
+        uses: haskell/actions/hlint-setup@v1
+        with:
+          version: '3.3.6'
+
+      - name: hlint run
+        uses: haskell/actions/hlint-run@v1
+        with:
+          path: src/
+          fail-on: warning
+  stack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: haskell/actions/setup@v1
+        with:
+          ghc-version: '8.8.3'
+          enable-stack: true
+          stack-version: 'latest'
+      - run: stack test

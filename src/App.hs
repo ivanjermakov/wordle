@@ -16,6 +16,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate, nub)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
+import Data.Time
 import Engine
 import Graphics.Vty as V hiding (Default)
 import Text.Printf (printf)
@@ -40,13 +41,14 @@ data State = State
 initState :: IO State
 initState = do
   ss <- argSettings
-  ix <- todayIndex
+  today <- localDay . zonedTimeToLocalTime <$> getZonedTime
+  ix <- (+ 1) <$> dailyWordIndex today
   let gm = argGameMode ss
       showIx = if gm == Daily then show ix else "∞"
   word <-
     if gm == Infinite
       then pickWordFilter ((== argWordSize ss) . length) . argTargetDict $ ss
-      else pickWordDaily . argDailyDict $ ss
+      else pickDailyWord today . argDailyDict $ ss
   return $
     State
       { sWords = argGuessDict ss,
@@ -103,7 +105,7 @@ draw s =
     guessWidth = 5 * sWordSize s + 1
     guessHeight = maximum [17, 3 * sMaxGuesses s + 3]
     status = withAttr wrongSpotAttr . padLeft (T.Pad 1) . strWrap . sStatus $ s
-    drawGuesses ats = vBox . map drawGuess $ ats
+    drawGuesses = vBox . map drawGuess
     drawGuess = hBox . map drawChar
     drawChar :: (Char, GuessType) -> T.Widget n
     drawChar c = charAttr (snd c) . border . padRight (T.Pad 1) . padLeft (T.Pad 1) . str . (: []) . fst $ c
@@ -173,12 +175,12 @@ handleEvent s e = case sGameStatus s of
                   (_, False) -> s' {sStatus = ""}
               where
                 s' = s {sGuesses = sGuesses s ++ [attempt], sInput = ""}
-                showResult _s = intercalate "\n" (t : "" : g)
+                showResult _s = intercalate "\n" (t : "" : grid)
                   where
                     t = unwords ["Wordle", n, att]
                     n = sWordIx _s
                     att = concat [show . length . sGuesses $ _s, "/", show . sMaxGuesses $ _s]
-                    g = sResults _s ++ [showResultGrid (sUnicode _s) . sGuesses $ _s]
+                    grid = sResults _s ++ [showResultGrid (sUnicode _s) . sGuesses $ _s]
         BM.continue ns {sInput = ""}
   _ -> case e of
     T.VtyEvent ve -> case ve of
