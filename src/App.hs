@@ -16,6 +16,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate, nub)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
+import Data.Time
 import Engine
 import Graphics.Vty as V hiding (Default)
 import Text.Printf (printf)
@@ -40,13 +41,14 @@ data State = State
 initState :: IO State
 initState = do
   ss <- argSettings
-  ix <- todayIndex
+  today <- localDay . zonedTimeToLocalTime <$> getZonedTime
+  ix <- (+ 1) <$> dailyWordIndex today
   let gm = argGameMode ss
       showIx = if gm == Daily then show ix else "∞"
   word <-
     if gm == Infinite
       then pickWordFilter ((== argWordSize ss) . length) . argTargetDict $ ss
-      else pickWordDaily . argDailyDict $ ss
+      else pickDailyWord today . argDailyDict $ ss
   return $
     State
       { sWords = argGuessDict ss,

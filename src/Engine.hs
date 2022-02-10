@@ -27,14 +27,13 @@ pickWordFilter f ws = do
   n <- randomRIO (0, length fws - 1)
   return $ fws !! n
 
-pickWordDaily :: [String] -> IO String
-pickWordDaily d = do
-  ix <- todayIndex
-  return $ d !! (ix `mod` length d)
+pickDailyWord :: Day -> [String] -> IO String
+pickDailyWord day dict = do
+  ix <- dailyWordIndex day
+  return $ dict !! (ix `mod` length dict)
 
-todayIndex :: IO Int
-todayIndex = do
-  currentDay <- utctDay <$> getCurrentTime
+dailyWordIndex :: Day -> IO Int
+dailyWordIndex currentDay = do
   -- January 1, 2022 Game Epoch
   let startDay = parseTimeOrError True defaultTimeLocale "%F" "2022-01-01"
   let sinceDays = diffDays currentDay startDay
