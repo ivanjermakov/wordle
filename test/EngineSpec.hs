@@ -32,3 +32,9 @@ spec = do
       test "reels" "myers" [WrongSpot, NotInWord, CorrectSpot, NotInWord, CorrectSpot]
     it "seers -> myers" $ do
       test "reels" "myers" [WrongSpot, NotInWord, CorrectSpot, NotInWord, CorrectSpot]
+    it "train -> timer" $ do
+      test "train" "timer" [CorrectSpot, WrongSpot, NotInWord, WrongSpot, NotInWord]
+    it "trine -> timer" $ do
+      test "trine" "timer" [CorrectSpot, WrongSpot, WrongSpot, NotInWord, WrongSpot]
+    it "their -> timer" $ do
+      test "their" "timer" [CorrectSpot, NotInWord, WrongSpot, WrongSpot, CorrectSpot]

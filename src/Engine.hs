@@ -44,20 +44,18 @@ isCorrectWord :: String -> [String] -> Bool
 isCorrectWord = elem
 
 guess :: String -> String -> Guess
-guess gWord tWord = zipWith3 f gWord tWord [0 ..]
+guess gWord tWord = foldl f [] $ zip gWord tWord
   where
-    f :: Char -> Char -> Int -> (Char, GuessType)
-    f g t i
-      | g == t = (g, CorrectSpot)
-      | g `notElem` tWord = (g, NotInWord)
-      | countInTargetCorrect g > countBefore g = (g, NotInWord)
-      | countTotal g > countBefore g = (g, WrongSpot)
-      | otherwise = (g, NotInWord)
+    f :: Guess -> (Char, Char) -> Guess
+    f acc (g, t) = acc ++ [(g, guessType)]
       where
-        countInTarget c = length . filter (== c)
-        countTotal = flip countInTarget tWord
-        countBefore c = countInTarget c . take (i - 1) $ tWord
-        countInTargetCorrect c = length . filter (\(a, b) -> a == c && b == c) $ zip gWord tWord
+        guessType
+          | g == t = CorrectSpot
+          | targetTotal g - correctTotal g - wrongBefore g > 0 = WrongSpot
+          | otherwise = NotInWord
+        wrongBefore c = length . filter (== c) . map fst . filter ((== WrongSpot) . snd) $ acc
+        targetTotal c = length . filter (== c) $ tWord
+        correctTotal c = length . filter (\(a, b) -> a == c && b == c) $ zip gWord tWord
 
 showResultGrid :: Bool -> [Guess] -> String
 showResultGrid isUnicode = intercalate "\n" . map (concatMap (f . snd))
