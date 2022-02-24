@@ -60,12 +60,12 @@ spec = do
           word <- pickDailyWord day dict
           shouldBe word w
     it "2022-01-01T00:00:00" $ do
-      test "2022-01-01T00:00:00" "unify"
-      test "2022-01-01T00:01:00" "unify"
-      test "2022-01-01T23:59:59" "unify"
+      test "2022-01-01T00:00:00" "rebus"
+      test "2022-01-01T00:01:00" "rebus"
+      test "2022-01-01T23:59:59" "rebus"
     it "2022-01-02T00:00:00" $ do
-      test "2022-01-02T00:00:00" "rebus"
-      test "2022-01-02T00:01:00" "rebus"
-      test "2022-01-02T23:59:59" "rebus"
+      test "2022-01-02T00:00:00" "boost"
+      test "2022-01-02T00:01:00" "boost"
+      test "2022-01-02T23:59:59" "boost"
     it "2022-01-02T00:00:00" $ do
-      test "2022-02-10T00:00:00" "humor"
+      test "2022-02-10T00:00:00" "pause"
