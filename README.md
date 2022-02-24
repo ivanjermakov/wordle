@@ -39,7 +39,7 @@ sudo mv wordle /usr/bin/
 
 ```
 Usage:
-  wordle [-idstgalh]
+  wordle [-idstgalvh]
 
 Options:
   -i, --infinite              Infinite game mode (Default)
@@ -49,6 +49,7 @@ Options:
   -g, --guess-dict=<file>     Path to the guess word dictionary
   -a, --attempts=<number>     Number of attempts allowed
   -l, --word-length=<number>  Target word length
+  -v, --version               Show wordle version
   -h, --help                  Show this message and exit
 ```
 

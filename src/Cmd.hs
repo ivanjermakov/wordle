@@ -5,9 +5,12 @@ module Cmd where
 
 import Control.Monad (when)
 import Data.FileEmbed (embedStringFile)
+import Data.Version (showVersion)
 import Engine
+import Paths_wordle (version)
 import System.Console.Docopt
 import System.Environment (getArgs)
+import System.Exit (exitSuccess)
 
 data Settings = Settings
   { argTargetDict :: [String],
@@ -30,10 +33,17 @@ maybeReadOptionDict def o args =
     . shortOption
     $ o
 
+versionString :: String
+versionString = "wordle v" ++ showVersion version
+
 -- TODO: quiet option to suppress result
 argSettings :: IO Settings
 argSettings = do
   args <- parseArgsOrExit patterns =<< getArgs
+
+  when (args `isPresent` longOption "version") $ do
+    putStrLn versionString
+    exitSuccess
 
   when (args `isPresent` longOption "help") $ do
     exitWithUsage patterns
