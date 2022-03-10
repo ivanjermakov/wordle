@@ -16,7 +16,7 @@ data GameMode = Daily | Infinite
   deriving (Show, Read, Eq, Ord)
 
 readWords :: FilePath -> IO [String]
-readWords p = lines <$> readFile p
+readWords = fmap lines . readFile
 
 pickWord :: [String] -> IO String
 pickWord = pickWordFilter $ const True
